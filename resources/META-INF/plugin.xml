@@ -1,0 +1,86 @@
+<idea-plugin>
+    <id>com.akexorcist.androidstudio.plugin.nextdroidtemplate</id>
+    <name>NextDroid Template</name>
+    <version>1.0</version>
+    <vendor email="akexorcist@gmail.com" url="https://www.akexorcist.com">Sleeping For Less</vendor>
+
+    <description><![CDATA[
+      Boilerplate NextDroid Class Generator<br>
+    ]]></description>
+
+    <change-notes><![CDATA[
+      I'm just build this plugin, Everything change!<br>
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="145.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+
+        <!--<group compact="" id="NextDroid.MainMenu" text="NextDroid" description="NextDroid class generator">-->
+        <!--<add-to-group group-id="NewGroup" anchor="last"/>-->
+        <!--<group id="MyPlugin.SampleMenuSub" text="Sub Sample Menu" description="Sample Menu">-->
+        <!--<add-to-group group-id="MyPlugin.SampleMenu" anchor="after" relative-to-action="MyPlugin.SampleMenu"/>-->
+        <!--<action id="Myplugin.Textboxes" class="MyPackage" text="Text Boxes" description="A test menu item"/>-->
+        <!--</group>-->
+        <!--&lt;!&ndash;<action id="Myplugin.Dialogs" class="MyPackage" text="Show Dialog"&ndash;&gt;-->
+        <!--&lt;!&ndash;description="A test menu item"/>&ndash;&gt;-->
+        <!--</group>-->
+
+        <group id="NextDroid">
+            <separator/>
+            <group id="NextDroid.MainMenu" text="NextDroid" description="NextDroid class generator" popup="true">
+                <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidActivityAction"
+                        id="NextDroid.Activity" text="Activity"
+                        description="Create NextDroid activity">
+                </action>
+                <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidFragmentAction"
+                        id="NextDroid.Fragment" text="Fragment"
+                        description="Create NextDroid fragment">
+                </action>
+                <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidRepositoryAction"
+                        id="NextDroid.Repository" text="Repository"
+                        description="Create NextDroid repository">
+                </action>
+                <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidApiAction"
+                        id="NextDroid.Api" text="API" description="Create NextDroid API">
+                </action>
+                <group id="NextDroid.Dialog" text="Dialog" description="Create NextDroid dialog" popup="true">
+                    <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidDialogFragmentAction"
+                            id="NextDroid.Dialog.DialogFragment" text="Dialog Fragment"
+                            description="Create NextDroid dialog fragment">
+                    </action>
+                    <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidBottomSheetDialogAction"
+                            id="NextDroid.Dialog.BottomSheetDialog" text="Bottom Sheet Dialog"
+                            description="Create NextDroid bottom sheet dialog">
+                    </action>
+                </group>
+                <group id="NextDroid.Adapter" text="Adapter" description="Create NextDroid adapter" popup="true">
+                    <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidListAdapterAction"
+                            id="NextDroid.Adapter.ListAdapter" text="List Adapter"
+                            description="Create NextDroid list adapter">
+                    </action>
+                    <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidPagerAdapterAction"
+                            id="NextDroid.Adapter.PagerAdapter" text="Pager Adapter"
+                            description="Create NextDroid pager adapter">
+                    </action>
+                </group>
+            </group>
+            <add-to-group group-id="NewGroup" anchor="last"/>
+            <separator/>
+        </group>
+    </actions>
+
+</idea-plugin>
