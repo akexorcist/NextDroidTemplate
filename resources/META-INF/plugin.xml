@@ -41,44 +41,55 @@
 
         <group id="NextDroid">
             <separator/>
-            <group id="NextDroid.MainMenu" text="NextDroid" description="NextDroid class generator" popup="true">
+            <group id="NextDroid.MainMenu" text="NextDroid" description="NextDroid class generator"
+                   icon="/icons/ic_next_droid.png" popup="true">
                 <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidActivityAction"
                         id="NextDroid.Activity" text="Activity"
-                        description="Create NextDroid activity">
+                        description="Create NextDroid activity"
+                        icon="/icons/ic_android.png">
                 </action>
                 <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidFragmentAction"
                         id="NextDroid.Fragment" text="Fragment"
-                        description="Create NextDroid fragment">
+                        description="Create NextDroid fragment"
+                        icon="/icons/ic_android.png">
                 </action>
                 <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidRepositoryAction"
                         id="NextDroid.Repository" text="Repository"
-                        description="Create NextDroid repository">
+                        description="Create NextDroid repository"
+                        icon="/icons/ic_android.png">
                 </action>
                 <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidApiAction"
-                        id="NextDroid.Api" text="API" description="Create NextDroid API">
+                        id="NextDroid.Api" text="API" description="Create NextDroid API"
+                        icon="/icons/ic_android.png">
                 </action>
-                <group id="NextDroid.Dialog" text="Dialog" description="Create NextDroid dialog" popup="true">
+                <group id="NextDroid.Dialog" text="Dialog" description="Create NextDroid dialog"
+                       icon="/icons/ic_android.png" popup="true">
                     <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidDialogFragmentAction"
                             id="NextDroid.Dialog.DialogFragment" text="Dialog Fragment"
-                            description="Create NextDroid dialog fragment">
+                            description="Create NextDroid dialog fragment"
+                            icon="/icons/ic_android.png">
                     </action>
                     <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidBottomSheetDialogAction"
                             id="NextDroid.Dialog.BottomSheetDialog" text="Bottom Sheet Dialog"
-                            description="Create NextDroid bottom sheet dialog">
+                            description="Create NextDroid bottom sheet dialog"
+                            icon="/icons/ic_android.png">
                     </action>
                 </group>
-                <group id="NextDroid.Adapter" text="Adapter" description="Create NextDroid adapter" popup="true">
+                <group id="NextDroid.Adapter" text="Adapter" description="Create NextDroid adapter"
+                       icon="/icons/ic_android.png" popup="true">
                     <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidListAdapterAction"
                             id="NextDroid.Adapter.ListAdapter" text="List Adapter"
-                            description="Create NextDroid list adapter">
+                            description="Create NextDroid list adapter"
+                            icon="/icons/ic_android.png">
                     </action>
                     <action class="com.akexorcist.androidstudio.plugin.nextdroidtemplate.NextDroidPagerAdapterAction"
                             id="NextDroid.Adapter.PagerAdapter" text="Pager Adapter"
-                            description="Create NextDroid pager adapter">
+                            description="Create NextDroid pager adapter"
+                            icon="/icons/ic_android.png">
                     </action>
                 </group>
             </group>
-            <add-to-group group-id="NewGroup" anchor="last"/>
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewAndroidVectorAsset"/>
             <separator/>
         </group>
     </actions>
