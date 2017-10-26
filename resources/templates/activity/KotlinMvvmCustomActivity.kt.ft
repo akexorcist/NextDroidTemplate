@@ -1,0 +1,60 @@
+package ${PACKAGE_NAME}
+
+import android.os.Bundle
+#if (${PACKAGE_NAME} != ${APP_PACKAGE_NAME})import ${APP_PACKAGE_NAME}.R
+#end
+
+import com.nextzy.tabcustomize.base.mvvm.CustomMvvmActivity
+
+/*
+ * Created by ${USER} on ${DATE} :)
+ */
+
+class ${CLASS_NAME}Activity : CustomMvvmActivity() {
+
+    private lateinit var viewModel: ${CLASS_NAME}ViewModel
+
+    override
+    fun onSetupViewModel() {
+        viewModel = getViewModel(${CLASS_NAME}ViewModel::class.java)
+    }
+
+    override
+    fun setupLayoutView(): Int = R.layout.${LAYOUT_NAME}
+
+
+    override
+    fun onInitialize() {
+        super.onInitialize()
+    }
+
+    override
+    fun onSetupView() {
+        super.onSetupView()
+    }
+
+    override
+    fun onPrepareInstance() {
+        super.onPrepareInstance()
+    }
+
+    override
+    fun onRestoreView(savedInstanceState: Bundle) {
+        super.onRestoreView(savedInstanceState)
+    }
+
+    override
+    fun onRestoreArgument(bundle: Bundle) {
+        super.onRestoreArgument(bundle)
+    }
+
+    override
+    fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+    }
+
+    override
+    fun onBeforeRestoreInstanceStateView(savedInstanceState: Bundle) {
+        super.onBeforeRestoreInstanceStateView(savedInstanceState)
+    }
+}

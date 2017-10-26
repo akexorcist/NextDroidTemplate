@@ -2,6 +2,7 @@ package com.akexorcist.androidstudio.plugin.nextdroidtemplate.util;
 
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
@@ -15,19 +16,19 @@ import java.util.Properties;
 
 public class NextDroidTemplateUtil {
 
-    public static void addFileTemplate(FileTemplateManager fileTemplateManager, PsiDirectory targetDirectory, ClassLoader classLoader, String targetName, String templateName, String extension) {
+    public static void addFileTemplate(FileTemplateManager fileTemplateManager, PsiDirectory targetDirectory, ClassLoader classLoader, String fileName, String templateName, String extension, String templatePath, Properties properties) {
         FileTemplate template = fileTemplateManager.getTemplate(templateName);
-        if (template == null) {
-            try {
-                template = fileTemplateManager.addTemplate(templateName, extension);
-                template.setText(FileUtil.loadTextAndClose(new InputStreamReader(classLoader.getResourceAsStream("/templates/" + templateName + "." + extension + ".ft"))));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if (template != null) {
+            fileTemplateManager.removeTemplate(template);
         }
         try {
-            Properties properties = fileTemplateManager.getDefaultProperties();
-            com.intellij.ide.fileTemplates.FileTemplateUtil.createFromTemplate(template, targetName, properties, targetDirectory);
+            template = fileTemplateManager.addTemplate(templateName, extension);
+            template.setText(FileUtil.loadTextAndClose(new InputStreamReader(classLoader.getResourceAsStream(templatePath + templateName + "." + extension + ".ft"))));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            FileTemplateUtil.createFromTemplate(template, fileName, properties, targetDirectory);
         } catch (Exception e) {
             e.printStackTrace();
         }
