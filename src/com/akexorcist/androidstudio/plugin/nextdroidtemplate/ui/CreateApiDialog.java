@@ -4,7 +4,6 @@ import com.akexorcist.androidstudio.plugin.nextdroidtemplate.event.TextChangeLis
 import com.akexorcist.androidstudio.plugin.nextdroidtemplate.util.NextDroidTemplateUtil;
 import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,9 +18,8 @@ public class CreateApiDialog extends JDialog {
     private JTextField textFieldClassName;
     private JTextField textFieldPackagePath;
     private JButton buttonPackagePath;
-    private JLabel textViewClassNameInvalida;
+    private JLabel textViewClassNameInvalid;
 
-    private VirtualFile virtualFile;
     private Project currentProject;
     private String selectedPackage;
     private String className;
@@ -70,7 +68,7 @@ public class CreateApiDialog extends JDialog {
         className = textFieldClassName.getText();
         selectedPackage = textFieldPackagePath.getText();
         if (onOkClickListener != null) {
-            onOkClickListener.onButtonOkClick(virtualFile, currentProject, selectedPackage, className);
+            onOkClickListener.onButtonOkClick(selectedPackage, className);
         }
         dispose();
     }
@@ -110,22 +108,18 @@ public class CreateApiDialog extends JDialog {
         this.onCancelClickListener = listener;
     }
 
-    public void setVirtualFile(VirtualFile virtualFile) {
-        this.virtualFile = virtualFile;
-    }
-
     private void checkClassNameValid() {
         if (NextDroidTemplateUtil.isClassNameValid(textFieldClassName.getText())) {
-            textViewClassNameInvalida.setVisible(false);
+            textViewClassNameInvalid.setVisible(false);
             buttonOK.setEnabled(true);
         } else {
-            textViewClassNameInvalida.setVisible(true);
+            textViewClassNameInvalid.setVisible(true);
             buttonOK.setEnabled(false);
         }
     }
 
     public interface OnOkClickListener {
-        void onButtonOkClick(VirtualFile file, Project project, String selectedPackage, String className);
+        void onButtonOkClick(String selectedPackage, String className);
     }
 
     public interface OnCancelClickListener {

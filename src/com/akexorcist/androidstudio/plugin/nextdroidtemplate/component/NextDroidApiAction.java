@@ -16,41 +16,45 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
 
 public class NextDroidApiAction extends AnAction {
+    private static final String TEMPLATE_NAME_ACTIVITY = "NextActivity";
+    private static final String TEMPLATE_EXTENSION = "kt";
+
+    private VirtualFile file;
+    private Project project;
+
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
-        VirtualFile file = DataKeys.VIRTUAL_FILE.getData(anActionEvent.getDataContext());
-        Project project = anActionEvent.getProject();
+        file = DataKeys.VIRTUAL_FILE.getData(anActionEvent.getDataContext());
+        project = anActionEvent.getProject();
         String projectDirectory = project != null ? project.getBasePath() : "";
         String directoryPath = NextDroidTemplateUtil.getDirectoryPath(file);
         String selectedPackage = NextDroidTemplateUtil.getPackagePath(directoryPath, projectDirectory);
-        showDialog(file, anActionEvent.getProject(), selectedPackage);
+        showDialog(anActionEvent.getProject(), selectedPackage);
     }
 
-    private void showDialog(VirtualFile file, Project project, String selectedPackage) {
+    private void showDialog(Project project, String selectedPackage) {
         CreateApiDialog dialog = new CreateApiDialog();
         dialog.setCurrentProject(project);
-        dialog.setVirtualFile(file);
         dialog.setSelectedPackage(selectedPackage);
         dialog.setTitle("Create API class");
         dialog.addOkClickListener(this::createNextDroidApiClass);
         dialog.setVisible(true);
     }
 
-    private void createNextDroidApiClass(VirtualFile file, Project project, String selectedPackage, String className) {
+    private void createNextDroidApiClass(String selectedPackage, String className) {
         Module module = ModuleUtilCore.findModuleForFile(file, project);
-
         if (module != null) {
             String targetPath = ModuleRootManager.getInstance(module).getContentRoots()[0].getCanonicalPath() + "/src/main/java/" + selectedPackage.replaceAll("\\.", "/");
             System.out.println("File : " + className);
             System.out.println("Target : " + targetPath);
-            addFileTemplate(project, className, targetPath);
+            // Activity Class
+            addFileTemplate(project, className + "Activity", TEMPLATE_NAME_ACTIVITY, TEMPLATE_EXTENSION, targetPath);
+        } else {
+            System.out.println("Module not found");
         }
-
     }
 
-    private void addFileTemplate(Project project, String targetName, String targetPath) {
-        String templateName = "NextActivity";
-        String extension = "kt";
+    private void addFileTemplate(Project project, String targetName, String templateName, String extension, String targetPath) {
         FileTemplateManager fileTemplateManager = FileTemplateManager.getInstance(project);
         PsiDirectory directory = PsiManager.getInstance(project).findDirectory(LocalFileSystem.getInstance().findFileByPath(targetPath));
         NextDroidTemplateUtil.addFileTemplate(fileTemplateManager, directory, getClass().getClassLoader(), targetName, templateName, extension);
