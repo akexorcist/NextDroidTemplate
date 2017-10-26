@@ -1,4 +1,4 @@
-package com.akexorcist.androidstudio.plugin.nextdroidtemplate;
+package com.akexorcist.androidstudio.plugin.nextdroidtemplate.component;
 
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
