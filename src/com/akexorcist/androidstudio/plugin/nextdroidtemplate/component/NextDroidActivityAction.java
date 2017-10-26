@@ -1,10 +1,9 @@
 package com.akexorcist.androidstudio.plugin.nextdroidtemplate.component;
 
 import com.akexorcist.androidstudio.plugin.nextdroidtemplate.constant.TemplateProperties;
-import com.akexorcist.androidstudio.plugin.nextdroidtemplate.ui.CreateApiDialog;
+import com.akexorcist.androidstudio.plugin.nextdroidtemplate.ui.CreateActivityDialog;
 import com.akexorcist.androidstudio.plugin.nextdroidtemplate.util.NextDroidTemplateUtil;
 import com.akexorcist.androidstudio.plugin.nextdroidtemplate.util.WriteAction;
-import com.google.common.base.CaseFormat;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -48,7 +47,7 @@ public class NextDroidActivityAction extends AnAction {
     }
 
     private void showDialog(Project project, String selectedPackage) {
-        CreateApiDialog dialog = new CreateApiDialog();
+        CreateActivityDialog dialog = new CreateActivityDialog();
         dialog.setCurrentProject(project);
         dialog.setSelectedPackage(selectedPackage);
         dialog.setTitle("Create Activity class");
@@ -56,25 +55,25 @@ public class NextDroidActivityAction extends AnAction {
         dialog.setVisible(true);
     }
 
-    private void createNextDroidApiClass(String selectedPackage, String className) {
+    private void createNextDroidApiClass(String selectedPackage, String className, String layoutName) {
         Module module = ModuleUtilCore.findModuleForFile(file, project);
         if (module != null) {
             String javaPath = ModuleRootManager.getInstance(module).getContentRoots()[0].getCanonicalPath() + "/src/main/java/" + selectedPackage.replaceAll("\\.", "/");
             String layoutPath = ModuleRootManager.getInstance(module).getContentRoots()[0].getCanonicalPath() + "/src/main/res/layout/";
-            addActivityTemplate(file, project, className, javaPath);
+            addActivityTemplate(file, project, className, layoutName, javaPath);
             addViewModelTemplate(project, className, javaPath);
-            addLayoutTemplate(project, className, layoutPath);
+            addLayoutTemplate(project, layoutName, layoutPath);
             addAndroidManifest(file, className, selectedPackage);
         } else {
             System.out.println("Module not found");
         }
     }
 
-    private void addActivityTemplate(VirtualFile file, Project project, String className, String targetPath) {
-        String classNameLowerUnderScore = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, className);
+    private void addActivityTemplate(VirtualFile file, Project project, String className, String layoutName, String targetPath) {
+        System.out.println("Layout Name " + layoutName);
         Properties properties = FileTemplateManager.getInstance(project).getDefaultProperties();
         properties.setProperty(TemplateProperties.CLASS_NAME, className);
-        properties.setProperty(TemplateProperties.LAYOUT_NAME, "layout_activity_" + classNameLowerUnderScore);
+        properties.setProperty(TemplateProperties.LAYOUT_NAME, layoutName);
         properties.setProperty(TemplateProperties.APP_PACKAGE_NAME, getAppPackageNameFromAndroidManifest(file));
         addFileTemplate(project, className + "Activity", TEMPLATE_NAME_ACTIVITY, TEMPLATE_EXTENSION_KOTLIN, targetPath, properties);
     }
@@ -85,10 +84,9 @@ public class NextDroidActivityAction extends AnAction {
         addFileTemplate(project, className + "ViewModel", TEMPLATE_NAME_VIEW_MODEL, TEMPLATE_EXTENSION_KOTLIN, targetPath, properties);
     }
 
-    private void addLayoutTemplate(Project project, String className, String targetPath) {
-        String classNameLowerUnderScore = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, className);
+    private void addLayoutTemplate(Project project, String layoutName, String targetPath) {
         Properties properties = FileTemplateManager.getInstance(project).getDefaultProperties();
-        addFileTemplate(project, "layout_activity_" + classNameLowerUnderScore, TEMPLATE_NAME_LAYOUT, TEMPLATE_EXTENSION_XML, targetPath, properties);
+        addFileTemplate(project, layoutName, TEMPLATE_NAME_LAYOUT, TEMPLATE_EXTENSION_XML, targetPath, properties);
     }
 
     /*
