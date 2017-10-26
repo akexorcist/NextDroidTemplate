@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -20,7 +21,10 @@ public class CreateClassAndLayoutDialog extends JDialog {
     private JTextField textFieldClassName;
     private JTextField textFieldPackagePath;
     private JTextField textFieldLayoutName;
+    private JLabel labelLayoutName;
     private JLabel textViewClassNameInvalid;
+    private JLabel textViewLayoutNameInvalid;
+    private JCheckBox checkBoxIncludeLayout;
 
     private Project currentProject;
     private String selectedPackage;
@@ -31,7 +35,7 @@ public class CreateClassAndLayoutDialog extends JDialog {
 
     public CreateClassAndLayoutDialog() {
         setupDialogWindow();
-        checkClassNameValid();
+        checkFileNameValid();
         setupView();
 
         // call onCancel() when cross is clicked
@@ -50,7 +54,7 @@ public class CreateClassAndLayoutDialog extends JDialog {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
-        setPreferredSize(new Dimension(400, 200));
+        setPreferredSize(new Dimension(400, 250));
         pack();
         setLocationRelativeTo(null);
     }
@@ -60,8 +64,15 @@ public class CreateClassAndLayoutDialog extends JDialog {
         buttonCancel.addActionListener(e -> onCancel());
         buttonPackagePath.addActionListener(e -> onSelectPackageClick());
         textFieldClassName.getDocument().addDocumentListener((TextChangeListener) event -> {
-            checkClassNameValid();
+            checkFileNameValid();
             updateLayoutName();
+        });
+        textFieldLayoutName.getDocument().addDocumentListener((TextChangeListener) event -> {
+            checkFileNameValid();
+        });
+        checkBoxIncludeLayout.addItemListener(event -> {
+            checkFileNameValid();
+            checkLayoutNameVisibility(event.getStateChange() == ItemEvent.SELECTED);
         });
     }
 
@@ -90,8 +101,9 @@ public class CreateClassAndLayoutDialog extends JDialog {
         selectedPackage = textFieldPackagePath.getText();
         String className = textFieldClassName.getText();
         String layoutName = textFieldLayoutName.getText();
+        boolean includeLayout = checkBoxIncludeLayout.isSelected();
         if (onOkClickListener != null) {
-            onOkClickListener.onButtonOkClick(selectedPackage, className, layoutName);
+            onOkClickListener.onButtonOkClick(selectedPackage, className, layoutName, includeLayout);
         }
         dispose();
     }
@@ -116,14 +128,38 @@ public class CreateClassAndLayoutDialog extends JDialog {
         textFieldLayoutName.setText(prefixLayoutName + classNameLowerUnderScore);
     }
 
-    private void checkClassNameValid() {
-        if (NextDroidTemplateUtil.isClassNameValid(textFieldClassName.getText())) {
+    private void checkLayoutNameVisibility(boolean isVisible) {
+        textFieldLayoutName.setVisible(isVisible);
+        labelLayoutName.setVisible(isVisible);
+    }
+
+    private void checkFileNameValid() {
+        boolean includeLayout = checkBoxIncludeLayout.isSelected();
+        if (isClassNameValid()) {
             textViewClassNameInvalid.setVisible(false);
-            buttonOK.setEnabled(true);
         } else {
             textViewClassNameInvalid.setVisible(true);
+        }
+
+        if (includeLayout && !isLayoutNameValid()) {
+            textViewLayoutNameInvalid.setVisible(true);
+        } else {
+            textViewLayoutNameInvalid.setVisible(false);
+        }
+
+        if (isClassNameValid() && (!includeLayout | isLayoutNameValid())) {
+            buttonOK.setEnabled(true);
+        } else {
             buttonOK.setEnabled(false);
         }
+    }
+
+    private boolean isClassNameValid() {
+        return NextDroidTemplateUtil.isClassNameValid(textFieldClassName.getText());
+    }
+
+    private boolean isLayoutNameValid() {
+        return NextDroidTemplateUtil.isLayoutNameValid(textFieldLayoutName.getText());
     }
 
     public static void main(String[] args) {
@@ -134,7 +170,7 @@ public class CreateClassAndLayoutDialog extends JDialog {
     }
 
     public interface OnOkClickListener {
-        void onButtonOkClick(String selectedPackage, String className, String layoutName);
+        void onButtonOkClick(String selectedPackage, String className, String layoutName, boolean includeLayout);
     }
 
     public interface OnCancelClickListener {

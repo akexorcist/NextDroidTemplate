@@ -29,7 +29,7 @@ class ${CLASS_NAME}Fragment : CustomMvvmFragment() {
     }
 
     override
-    fun setupLayoutView(): Int = R.layout.${LAYOUT_NAME}
+    fun setupLayoutView(): Int = ${LAYOUT_NAME}
 
     override
     fun onInitialize() {

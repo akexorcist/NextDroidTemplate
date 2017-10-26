@@ -10,6 +10,7 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.lang.model.SourceVersion;
 import java.io.InputStreamReader;
@@ -40,6 +41,14 @@ public class NextDroidTemplateUtil {
 
     public static boolean isClassNameValid(String className) {
         return SourceVersion.isIdentifier(className) && !SourceVersion.isKeyword(className);
+    }
+
+    public static boolean isLayoutNameValid(String layoutName) {
+        return layoutName != null &&
+                StringUtils.isNotEmpty(layoutName) &&
+                !StringUtils.isNumeric(layoutName.charAt(0) + "") &&
+                !StringUtils.equals(layoutName.charAt(0) + "", "_") &&
+                layoutName.matches("^[a-z0-9_]+$");
     }
 
     public static String getDirectoryPath(VirtualFile file) {

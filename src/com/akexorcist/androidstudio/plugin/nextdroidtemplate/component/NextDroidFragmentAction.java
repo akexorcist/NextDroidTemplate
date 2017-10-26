@@ -51,23 +51,25 @@ public class NextDroidFragmentAction extends AnAction {
         dialog.setVisible(true);
     }
 
-    private void createNextDroidApiClass(String selectedPackage, String className, String layoutName) {
+    private void createNextDroidApiClass(String selectedPackage, String className, String layoutName, boolean includeLayout) {
         Module module = ModuleUtilCore.findModuleForFile(file, project);
         if (module != null) {
             String javaPath = ModuleRootManager.getInstance(module).getContentRoots()[0].getCanonicalPath() + "/src/main/java/" + selectedPackage.replaceAll("\\.", "/");
             String layoutPath = ModuleRootManager.getInstance(module).getContentRoots()[0].getCanonicalPath() + "/src/main/res/layout/";
-            addActivityTemplate(file, project, className, layoutName, javaPath);
+            addActivityTemplate(file, project, className, layoutName, javaPath, includeLayout);
             addViewModelTemplate(project, className, javaPath);
-            addLayoutTemplate(project, layoutName, layoutPath);
+            if (includeLayout) {
+                addLayoutTemplate(project, layoutName, layoutPath);
+            }
         } else {
             System.out.println("Module not found");
         }
     }
 
-    private void addActivityTemplate(VirtualFile file, Project project, String className, String layoutName, String targetPath) {
+    private void addActivityTemplate(VirtualFile file, Project project, String className, String layoutName, String targetPath, boolean includeLayout) {
         Properties properties = FileTemplateManager.getInstance(project).getDefaultProperties();
         properties.setProperty(TemplateProperties.CLASS_NAME, className);
-        properties.setProperty(TemplateProperties.LAYOUT_NAME, layoutName);
+        properties.setProperty(TemplateProperties.LAYOUT_NAME, includeLayout ? "R.layout." + layoutName : "0");
         properties.setProperty(TemplateProperties.APP_PACKAGE_NAME, NextDroidTemplateUtil.getAppPackageNameFromAndroidManifest(file));
         addFileTemplate(project, className + "Fragment", TEMPLATE_NAME_ACTIVITY, TEMPLATE_EXTENSION_KOTLIN, targetPath, properties);
     }
