@@ -3,6 +3,8 @@ package com.akexorcist.androidstudio.plugin.nextdroidtemplate.util;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
@@ -13,6 +15,8 @@ import javax.lang.model.SourceVersion;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NextDroidTemplateUtil {
 
@@ -68,5 +72,42 @@ public class NextDroidTemplateUtil {
             }
         }
         return buildConfigList;
+    }
+
+    public static Document getAndroidManifest(VirtualFile file) {
+        VirtualFile parent = file.getParent();
+        if (parent != null) {
+            int i = 100;
+            while (i > 0 && parent != null && (!parent.getName().equals("main") && (!parent.getName().equals("java")) && (!parent.getName().equals("src")))) {
+                parent = parent.getParent();
+                i--;
+            }
+        }
+        VirtualFile virtualFile[] = parent.getParent().getChildren();
+        for (int i = 0; i < virtualFile.length; i++) {
+            VirtualFile childFile = virtualFile[i];
+            Document document = FileDocumentManager.getInstance().getCachedDocument(childFile);
+            if (document != null && document.isWritable() && childFile.getPresentableName().toLowerCase().equals("androidmanifest.xml")) {
+                return document;
+            }
+        }
+        return null;
+    }
+
+    public static String getAppPackageNameFromAndroidManifest(VirtualFile file) {
+        Document document = NextDroidTemplateUtil.getAndroidManifest(file);
+        if (document != null) {
+            String androidManifest = document.getCharsSequence().toString();
+            String regex = "package=\"(.+)\">";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(androidManifest);
+            if (matcher.find()) {
+                try {
+                    return matcher.group(1);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        return "";
     }
 }

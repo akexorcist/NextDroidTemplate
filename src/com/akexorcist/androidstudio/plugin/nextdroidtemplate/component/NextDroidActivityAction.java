@@ -1,7 +1,7 @@
 package com.akexorcist.androidstudio.plugin.nextdroidtemplate.component;
 
 import com.akexorcist.androidstudio.plugin.nextdroidtemplate.constant.TemplateProperties;
-import com.akexorcist.androidstudio.plugin.nextdroidtemplate.ui.CreateActivityDialog;
+import com.akexorcist.androidstudio.plugin.nextdroidtemplate.ui.CreateClassAndLayoutDialog;
 import com.akexorcist.androidstudio.plugin.nextdroidtemplate.util.NextDroidTemplateUtil;
 import com.akexorcist.androidstudio.plugin.nextdroidtemplate.util.WriteAction;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -10,7 +10,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
@@ -21,14 +20,13 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
 
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class NextDroidActivityAction extends AnAction {
     private static final String TEMPLATE_PATH = "/templates/activity/";
     private static final String TEMPLATE_NAME_ACTIVITY = "KotlinMvvmCustomActivity";
     private static final String TEMPLATE_NAME_VIEW_MODEL = "KotlinMvvmCustomViewModel";
     private static final String TEMPLATE_NAME_LAYOUT = "layout_activity_custom";
+    private static final String PREFIX_LAYOUT_NAME = "activity_";
 
     private static final String TEMPLATE_EXTENSION_KOTLIN = "kt";
     private static final String TEMPLATE_EXTENSION_XML = "xml";
@@ -47,9 +45,10 @@ public class NextDroidActivityAction extends AnAction {
     }
 
     private void showDialog(Project project, String selectedPackage) {
-        CreateActivityDialog dialog = new CreateActivityDialog();
+        CreateClassAndLayoutDialog dialog = new CreateClassAndLayoutDialog();
         dialog.setCurrentProject(project);
         dialog.setSelectedPackage(selectedPackage);
+        dialog.setPrefixLayoutName(PREFIX_LAYOUT_NAME);
         dialog.setTitle("Create Activity class");
         dialog.addOkClickListener(this::createNextDroidApiClass);
         dialog.setVisible(true);
@@ -70,11 +69,10 @@ public class NextDroidActivityAction extends AnAction {
     }
 
     private void addActivityTemplate(VirtualFile file, Project project, String className, String layoutName, String targetPath) {
-        System.out.println("Layout Name " + layoutName);
         Properties properties = FileTemplateManager.getInstance(project).getDefaultProperties();
         properties.setProperty(TemplateProperties.CLASS_NAME, className);
         properties.setProperty(TemplateProperties.LAYOUT_NAME, layoutName);
-        properties.setProperty(TemplateProperties.APP_PACKAGE_NAME, getAppPackageNameFromAndroidManifest(file));
+        properties.setProperty(TemplateProperties.APP_PACKAGE_NAME, NextDroidTemplateUtil.getAppPackageNameFromAndroidManifest(file));
         addFileTemplate(project, className + "Activity", TEMPLATE_NAME_ACTIVITY, TEMPLATE_EXTENSION_KOTLIN, targetPath, properties);
     }
 
@@ -93,7 +91,7 @@ public class NextDroidActivityAction extends AnAction {
      * https://github.com/JorgeDC/AndroidManifestFitter
      */
     private void addAndroidManifest(VirtualFile file, String className, String packageName) {
-        Document document = getAndroidManifest(file);
+        Document document = NextDroidTemplateUtil.getAndroidManifest(file);
         if (document != null) {
             String androidManifest = document.getCharsSequence().toString();
             androidManifest = androidManifest.replace("</application>", "    <activity android:name=\"" + packageName + "." + className + "Activity\" />\n    </application>");
@@ -102,46 +100,9 @@ public class NextDroidActivityAction extends AnAction {
         }
     }
 
-    private String getAppPackageNameFromAndroidManifest(VirtualFile file) {
-        Document document = getAndroidManifest(file);
-        if (document != null) {
-            String androidManifest = document.getCharsSequence().toString();
-            String regex = "package=\"(.+)\">";
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(androidManifest);
-            if (matcher.find()) {
-                try {
-                    return matcher.group(1);
-                } catch (Exception ignored) {
-                }
-            }
-        }
-        return "";
-    }
-
     private void addFileTemplate(Project project, String fileName, String templateName, String extension, String targetPath, Properties properties) {
         FileTemplateManager fileTemplateManager = FileTemplateManager.getInstance(project);
         PsiDirectory directory = PsiManager.getInstance(project).findDirectory(LocalFileSystem.getInstance().findFileByPath(targetPath));
         NextDroidTemplateUtil.addFileTemplate(fileTemplateManager, directory, getClass().getClassLoader(), fileName, templateName, extension, TEMPLATE_PATH, properties);
-    }
-
-    private Document getAndroidManifest(VirtualFile file) {
-        VirtualFile parent = file.getParent();
-        if (parent != null) {
-            int i = 100;
-            while (i > 0 && parent != null && (!parent.getName().equals("main") && (!parent.getName().equals("java")) && (!parent.getName().equals("src")))) {
-                parent = parent.getParent();
-                i--;
-            }
-        }
-        VirtualFile virtualFile[] = parent.getParent().getChildren();
-        for (int i = 0; i < virtualFile.length; i++) {
-            VirtualFile childFile = virtualFile[i];
-            Document document = FileDocumentManager.getInstance().getCachedDocument(childFile);
-            if (document != null && document.isWritable() && childFile.getPresentableName().toLowerCase().equals("androidmanifest.xml")) {
-                return document;
-            }
-        }
-        return null;
     }
 }

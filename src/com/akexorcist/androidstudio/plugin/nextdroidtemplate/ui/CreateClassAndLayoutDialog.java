@@ -12,7 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class CreateActivityDialog extends JDialog {
+public class CreateClassAndLayoutDialog extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
@@ -24,11 +24,12 @@ public class CreateActivityDialog extends JDialog {
 
     private Project currentProject;
     private String selectedPackage;
+    private String prefixLayoutName;
 
     private OnOkClickListener onOkClickListener;
     private OnCancelClickListener onCancelClickListener;
 
-    public CreateActivityDialog() {
+    public CreateClassAndLayoutDialog() {
         setupDialogWindow();
         checkClassNameValid();
         setupView();
@@ -64,8 +65,25 @@ public class CreateActivityDialog extends JDialog {
         });
     }
 
+    public void setSelectedPackage(String selectedPackage) {
+        this.selectedPackage = selectedPackage;
+        textFieldPackagePath.setText(selectedPackage);
+    }
+
+    public void setPrefixLayoutName(String prefixLayoutName) {
+        this.prefixLayoutName = prefixLayoutName;
+    }
+
     public void setCurrentProject(Project currentProject) {
         this.currentProject = currentProject;
+    }
+
+    public void addOkClickListener(OnOkClickListener listener) {
+        this.onOkClickListener = listener;
+    }
+
+    public void addCancelClickListener(OnCancelClickListener listener) {
+        this.onCancelClickListener = listener;
     }
 
     private void onOK() {
@@ -92,31 +110,10 @@ public class CreateActivityDialog extends JDialog {
         textFieldPackagePath.setText(chooserDialog.getSelectedPackage().getQualifiedName());
     }
 
-    public static void main(String[] args) {
-        CreateActivityDialog dialog = new CreateActivityDialog();
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
-    }
-
-
-    public void setSelectedPackage(String selectedPackage) {
-        this.selectedPackage = selectedPackage;
-        textFieldPackagePath.setText(selectedPackage);
-    }
-
-    public void addOkClickListener(OnOkClickListener listener) {
-        this.onOkClickListener = listener;
-    }
-
-    public void addCancelClickListener(OnCancelClickListener listener) {
-        this.onCancelClickListener = listener;
-    }
-
     private void updateLayoutName() {
         String className = textFieldClassName.getText().replaceAll("[^A-Za-z0-9]", "");
         String classNameLowerUnderScore = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, className);
-        textFieldLayoutName.setText("layout_activity_" + classNameLowerUnderScore);
+        textFieldLayoutName.setText(prefixLayoutName + classNameLowerUnderScore);
     }
 
     private void checkClassNameValid() {
@@ -127,6 +124,13 @@ public class CreateActivityDialog extends JDialog {
             textViewClassNameInvalid.setVisible(true);
             buttonOK.setEnabled(false);
         }
+    }
+
+    public static void main(String[] args) {
+        CreateClassAndLayoutDialog dialog = new CreateClassAndLayoutDialog();
+        dialog.pack();
+        dialog.setVisible(true);
+        System.exit(0);
     }
 
     public interface OnOkClickListener {

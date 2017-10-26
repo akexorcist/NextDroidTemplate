@@ -1,0 +1,11 @@
+package ${PACKAGE_NAME}
+
+import com.nextzy.tabcustomize.base.mvvm.CustomViewModel
+
+/*
+ * Created by ${USER} on ${DATE} :)
+ */
+
+class ${CLASS_NAME}ViewModel : CustomViewModel(){
+
+}
