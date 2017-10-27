@@ -3,9 +3,12 @@ package com.akexorcist.androidstudio.plugin.nextdroidtemplate.util;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -13,6 +16,7 @@ import com.intellij.psi.PsiDirectory;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.lang.model.SourceVersion;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -118,5 +122,35 @@ public class NextDroidTemplateUtil {
             }
         }
         return "";
+    }
+
+    public static String getSourceDirectoryPath(Project project, String targetPath) {
+        String baseDirectory = project.getBaseDir().getCanonicalPath();
+        return targetPath.replaceAll(baseDirectory, "");
+    }
+
+    public static void createDirectoryIfNotExist(Project project, String path, DirectoryCreateListener listener) {
+        Application application = ApplicationManager.getApplication();
+        application.runWriteAction(() -> {
+            VirtualFile directory = project.getBaseDir();
+            String[] folders = path.split("/");
+            for (String childFolder : folders) {
+                VirtualFile childDirectory = directory.findChild(childFolder);
+                if (childDirectory != null && childDirectory.isDirectory()) {
+                    directory = childDirectory;
+                } else if (!childFolder.isEmpty()) {
+                    try {
+                        directory = directory.createChildDirectory(project, childFolder);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            listener.onComplete(directory != null, directory);
+        });
+    }
+
+    public interface DirectoryCreateListener {
+        void onComplete(boolean isSuccess, VirtualFile file);
     }
 }

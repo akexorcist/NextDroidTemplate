@@ -14,7 +14,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
@@ -103,8 +102,16 @@ public class NextDroidActivityAction extends AnAction {
     }
 
     private void addFileTemplate(Project project, String fileName, String templateName, String extension, String targetPath, Properties properties) {
-        FileTemplateManager fileTemplateManager = FileTemplateManager.getInstance(project);
-        PsiDirectory directory = PsiManager.getInstance(project).findDirectory(LocalFileSystem.getInstance().findFileByPath(targetPath));
-        NextDroidTemplateUtil.addFileTemplate(fileTemplateManager, directory, getClass().getClassLoader(), fileName, templateName, extension, TEMPLATE_PATH, properties);
+        String targetSourcePath = NextDroidTemplateUtil.getSourceDirectoryPath(project, targetPath);
+        NextDroidTemplateUtil.createDirectoryIfNotExist(project, targetSourcePath, new NextDroidTemplateUtil.DirectoryCreateListener() {
+            @Override
+            public void onComplete(boolean isSuccess, VirtualFile file) {
+                if (isSuccess) {
+                    FileTemplateManager fileTemplateManager = FileTemplateManager.getInstance(project);
+                    PsiDirectory directory = PsiManager.getInstance(project).findDirectory(file);
+                    NextDroidTemplateUtil.addFileTemplate(fileTemplateManager, directory, getClass().getClassLoader(), fileName, templateName, extension, TEMPLATE_PATH, properties);
+                }
+            }
+        });
     }
 }
