@@ -37,14 +37,16 @@ public class NextDroidFragmentAction extends AnAction {
         String projectDirectory = project != null ? project.getBasePath() : "";
         String directoryPath = NextDroidTemplateUtil.getDirectoryPath(file);
         String selectedPackage = NextDroidTemplateUtil.getPackagePath(directoryPath, projectDirectory);
-        showDialog(anActionEvent.getProject(), selectedPackage);
+        showDialog(file, project, selectedPackage);
     }
 
-    private void showDialog(Project project, String selectedPackage) {
+    private void showDialog(VirtualFile file, Project project, String selectedPackage) {
         CreateClassAndLayoutDialog dialog = new CreateClassAndLayoutDialog();
         dialog.setCurrentProject(project);
+        dialog.setCurrentVirtualFile(file);
         dialog.setSelectedPackage(selectedPackage);
         dialog.setPrefixLayoutName(PREFIX_LAYOUT_NAME);
+        dialog.setValidationClassAndLayoutName(new String[]{"%sFragment.kt", "%sViewModel.kt"}, "%s.xml");
         dialog.setTitle("Create Fragment class");
         dialog.addOkClickListener(this::createNextDroidApiClass);
         dialog.setVisible(true);

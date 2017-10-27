@@ -4,7 +4,13 @@ import com.akexorcist.androidstudio.plugin.nextdroidtemplate.event.TextChangeLis
 import com.akexorcist.androidstudio.plugin.nextdroidtemplate.util.NextDroidTemplateUtil;
 import com.google.common.base.CaseFormat;
 import com.intellij.ide.util.PackageChooserDialog;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,9 +32,14 @@ public class CreateClassAndLayoutDialog extends JDialog {
     private JLabel textViewLayoutNameInvalid;
     private JCheckBox checkBoxIncludeLayout;
 
+    private VirtualFile currentFile;
     private Project currentProject;
     private String selectedPackage;
     private String prefixLayoutName;
+
+    // Validate
+    private String[] validationClassNames;
+    private String validationLayoutName;
 
     private OnOkClickListener onOkClickListener;
     private OnCancelClickListener onCancelClickListener;
@@ -89,6 +100,15 @@ public class CreateClassAndLayoutDialog extends JDialog {
         this.currentProject = currentProject;
     }
 
+    public void setCurrentVirtualFile(VirtualFile currentVirtualFile) {
+        this.currentFile = currentVirtualFile;
+    }
+
+    public void setValidationClassAndLayoutName(String[] validationClassNames, String validationLayoutName) {
+        this.validationClassNames = validationClassNames;
+        this.validationLayoutName = validationLayoutName;
+    }
+
     public void addOkClickListener(OnOkClickListener listener) {
         this.onOkClickListener = listener;
     }
@@ -101,11 +121,31 @@ public class CreateClassAndLayoutDialog extends JDialog {
         selectedPackage = textFieldPackagePath.getText();
         String className = textFieldClassName.getText();
         String layoutName = textFieldLayoutName.getText();
-        boolean includeLayout = checkBoxIncludeLayout.isSelected();
-        if (onOkClickListener != null) {
-            onOkClickListener.onButtonOkClick(selectedPackage, className, layoutName, includeLayout);
+        if (validateFilePath(selectedPackage, className, layoutName)) {
+            boolean includeLayout = checkBoxIncludeLayout.isSelected();
+            if (onOkClickListener != null) {
+                onOkClickListener.onButtonOkClick(selectedPackage, className, layoutName, includeLayout);
+            }
+            dispose();
         }
-        dispose();
+    }
+
+    private boolean validateFilePath(String selectedPackage, String className, String layoutName) {
+        selectedPackage = selectedPackage.replaceAll("\\.", "/");
+        Module module = ModuleUtilCore.findModuleForFile(currentFile, currentProject);
+        for (String validationClassName : validationClassNames) {
+            String classPath = ModuleRootManager.getInstance(module).getContentRoots()[0].getCanonicalPath() + "/src/main/java/" + selectedPackage.replaceAll("\\.", "/") + "/" + String.format(validationClassName, className);
+            if (isFileDuplicated(classPath)) {
+                showClassFileAlreadyExistMessage(classPath);
+                return false;
+            }
+        }
+        String layoutPath = ModuleRootManager.getInstance(module).getContentRoots()[0].getCanonicalPath() + "/src/main/res/layout/" + String.format(validationLayoutName, layoutName);
+        if (isFileDuplicated(layoutPath)) {
+            showLayoutFileAlreadyExistMessage(layoutPath);
+            return false;
+        }
+        return true;
     }
 
     private void onCancel() {
@@ -126,6 +166,14 @@ public class CreateClassAndLayoutDialog extends JDialog {
         String className = textFieldClassName.getText().replaceAll("[^A-Za-z0-9]", "");
         String classNameLowerUnderScore = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, className);
         textFieldLayoutName.setText(prefixLayoutName + classNameLowerUnderScore);
+    }
+
+    private void showClassFileAlreadyExistMessage(String path) {
+        Messages.showErrorDialog("Cannot create class\n'" + path + "'\nFile already exists.", "Cannot Create Class");
+    }
+
+    private void showLayoutFileAlreadyExistMessage(String path) {
+        Messages.showErrorDialog("Cannot create layout\n'" + path + "'\nFile already exists.", "Cannot Create Layout");
     }
 
     private void checkLayoutNameVisibility(boolean isVisible) {
@@ -160,6 +208,10 @@ public class CreateClassAndLayoutDialog extends JDialog {
 
     private boolean isLayoutNameValid() {
         return NextDroidTemplateUtil.isLayoutNameValid(textFieldLayoutName.getText());
+    }
+
+    private boolean isFileDuplicated(String path) {
+        return LocalFileSystem.getInstance().findFileByPath(path) != null;
     }
 
     public static void main(String[] args) {
