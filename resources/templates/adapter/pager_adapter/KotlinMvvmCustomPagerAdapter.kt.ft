@@ -1,0 +1,29 @@
+package ${PACKAGE_NAME}
+
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentActivity
+
+import com.nextzy.tabcustomize.base.adapter.CustomMvvmPagerAdapter
+
+/*
+ * Created by ${USER} on ${DATE} :)
+ */
+
+class ${CLASS_NAME}PagerAdapter : CustomMvvmPagerAdapter {
+
+    companion object {
+        private val TAG = ${CLASS_NAME}PagerAdapter::class.java.simpleName
+    }
+
+    constructor(activity: FragmentActivity) : super(activity) {}
+
+    constructor(fragment: Fragment) : super(fragment) {}
+
+    override
+    fun getCount(): Int = 0
+
+    override
+    fun getItem(position: Int): Fragment? {
+        return null
+    }
+}
