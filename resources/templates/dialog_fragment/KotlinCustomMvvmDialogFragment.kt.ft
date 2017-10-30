@@ -1,0 +1,81 @@
+package ${PACKAGE_NAME}
+
+
+import android.os.Bundle
+import android.view.View
+#if (${PACKAGE_NAME} != ${APP_PACKAGE_NAME})import ${APP_PACKAGE_NAME}.R
+#end
+
+import com.nextzy.tabcustomize.base.mvvm.dialog.CustomMvvmDialogFragment
+
+/*
+ * Created by ${USER} on ${DATE} :)
+ */
+
+class ${CLASS_NAME}DialogFragment : CustomMvvmDialogFragment() {
+
+    companion object {
+        fun newInstance(): ${CLASS_NAME}DialogFragment {
+            val fragment = ${CLASS_NAME}DialogFragment()
+            val args = Bundle()
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
+    private lateinit var viewModel: ${CLASS_NAME}DialogViewModel
+
+    override
+    fun onSetupViewModel() {
+        viewModel = getViewModel(${CLASS_NAME}DialogViewModel::class.java)
+    }
+
+    override
+    fun setupLayoutView(): Int = ${LAYOUT_NAME}
+
+    override
+    fun onBindView(view: View?) {
+        super.onBindView(view)
+    }
+
+    override
+    fun onSetupInstance() {
+        super.onSetupInstance()
+    }
+
+    override
+    fun onSetupView() {
+        super.onSetupView()
+    }
+
+    override
+    fun onPrepareInstance() {
+        super.onPrepareInstance()
+    }
+
+    override
+    fun onRestoreArgument(bundle: Bundle) {
+        super.onRestoreArgument(bundle)
+    }
+
+    override
+    fun onRestoreView(savedInstanceState: Bundle) {
+        super.onRestoreView(savedInstanceState)
+    }
+
+    override
+    fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+    }
+
+    override
+    fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
+    class Builder {
+        fun build(): ${CLASS_NAME}DialogFragment {
+            return newInstance()
+        }
+    }
+}

@@ -1,0 +1,11 @@
+package ${PACKAGE_NAME}
+
+import com.nextzy.tabcustomize.base.mvvm.dialog.CustomDialogViewModel
+
+/*
+ * Created by ${USER} on ${DATE} :)
+ */
+
+class ${CLASS_NAME}DialogViewModel : CustomDialogViewModel(){
+
+}
