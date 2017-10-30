@@ -1,0 +1,72 @@
+package ${PACKAGE_NAME}
+
+import android.os.Bundle
+import android.view.View
+#if (${PACKAGE_NAME} != ${APP_PACKAGE_NAME})import ${APP_PACKAGE_NAME}.R
+#end
+
+import com.nextzy.tabcustomize.base.mvvm.dialog.CustomMvvmBottomSheetDialog
+
+/*
+ * Created by ${USER} on ${DATE} :)
+ */
+
+class ${CLASS_NAME}BottomSheetDialog
+    : CustomMvvmBottomSheetDialog() {
+
+    companion object {
+        @JvmOverloads
+        fun create(bundle: Bundle? = null): ${CLASS_NAME}BottomSheetDialog {
+            val fragment = ${CLASS_NAME}BottomSheetDialog()
+            var args = Bundle()
+            if (bundle != null) args = bundle
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
+    private lateinit var viewModel: ${CLASS_NAME}DialogViewModel
+
+    override
+    fun onSetupViewModel() {
+        viewModel = getViewModel(${CLASS_NAME}DialogViewModel::class.java)
+    }
+
+    override
+    fun setupLayoutView(): Int = 0
+
+    override
+    fun onBindView(view: View) {
+
+    }
+
+    override
+    fun onInitialize() {
+
+    }
+
+    override
+    fun onSetupView() {
+
+    }
+
+    override
+    fun onPrepareInstance() {
+
+    }
+
+    override
+    fun onRestoreArgument(bundle: Bundle) {
+        super.onRestoreArgument(bundle)
+    }
+
+    override
+    fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+    }
+
+    override
+    fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+}
