@@ -44,7 +44,7 @@ public class NextDroidDialogFragmentAction extends BaseNextDroidClassAction {
         dialog.setGenerateFileRequest(request);
         dialog.setPrefixLayoutName(PREFIX_LAYOUT_NAME);
         dialog.setValidationClassAndLayoutName(getValidationClassName(), getValidationLayoutName());
-        dialog.setTitle("Create Dialog Fragment class");
+        dialog.setTitle("Create Dialog Fragment Class");
         dialog.addOkClickListener(this::createNextDroidFragmentClass);
         dialog.setVisible(true);
     }

@@ -47,7 +47,7 @@ public class NextDroidActivityAction extends BaseNextDroidClassAction {
         dialog.setGenerateFileRequest(request);
         dialog.setPrefixLayoutName(PREFIX_LAYOUT_NAME);
         dialog.setValidationClassAndLayoutName(getValidationClassName(), getValidationLayoutName());
-        dialog.setTitle("Create Activity class");
+        dialog.setTitle("Create Activity Class");
         dialog.addOkClickListener(this::createNextDroidActivityClass);
         dialog.setVisible(true);
     }
