@@ -1,16 +1,12 @@
 package com.akexorcist.androidstudio.plugin.nextdroidtemplate.ui;
 
+import com.akexorcist.androidstudio.plugin.nextdroidtemplate.data.GenerateFileRequest;
+import com.akexorcist.androidstudio.plugin.nextdroidtemplate.data.GenerateFileResult;
 import com.akexorcist.androidstudio.plugin.nextdroidtemplate.event.TextChangeListener;
 import com.akexorcist.androidstudio.plugin.nextdroidtemplate.util.NextDroidTemplateUtil;
 import com.google.common.base.CaseFormat;
-import com.intellij.ide.util.PackageChooserDialog;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +19,6 @@ public class CreateClassAndLayoutDialog extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
-    private JButton buttonPackagePath;
     private JTextField textFieldClassName;
     private JTextField textFieldPackagePath;
     private JTextField textFieldLayoutName;
@@ -32,14 +27,14 @@ public class CreateClassAndLayoutDialog extends JDialog {
     private JLabel textViewLayoutNameInvalid;
     private JCheckBox checkBoxIncludeLayout;
 
-    private VirtualFile currentFile;
-    private Project currentProject;
-    private String selectedPackage;
+    //    private VirtualFile currentFile;
+    //    private Project currentProject;
+    private GenerateFileRequest request;
     private String prefixLayoutName;
 
     // Validate
     private String[] validationClassNames;
-    private String validationLayoutName;
+    private String[] validationLayoutNames;
 
     private OnOkClickListener onOkClickListener;
     private OnCancelClickListener onCancelClickListener;
@@ -73,7 +68,6 @@ public class CreateClassAndLayoutDialog extends JDialog {
     private void setupView() {
         buttonOK.addActionListener(e -> onOK());
         buttonCancel.addActionListener(e -> onCancel());
-        buttonPackagePath.addActionListener(e -> onSelectPackageClick());
         textFieldClassName.getDocument().addDocumentListener((TextChangeListener) event -> {
             checkFileNameValid();
             updateLayoutName();
@@ -87,26 +81,19 @@ public class CreateClassAndLayoutDialog extends JDialog {
         });
     }
 
-    public void setSelectedPackage(String selectedPackage) {
-        this.selectedPackage = selectedPackage;
-        textFieldPackagePath.setText(selectedPackage);
+    public void setGenerateFileRequest(GenerateFileRequest request) {
+        this.request = request;
+        textFieldPackagePath.setText(request.getSelectedPackage());
     }
 
     public void setPrefixLayoutName(String prefixLayoutName) {
         this.prefixLayoutName = prefixLayoutName;
     }
 
-    public void setCurrentProject(Project currentProject) {
-        this.currentProject = currentProject;
-    }
 
-    public void setCurrentVirtualFile(VirtualFile currentVirtualFile) {
-        this.currentFile = currentVirtualFile;
-    }
-
-    public void setValidationClassAndLayoutName(String[] validationClassNames, String validationLayoutName) {
+    public void setValidationClassAndLayoutName(String[] validationClassNames, String[] validationLayoutName) {
         this.validationClassNames = validationClassNames;
-        this.validationLayoutName = validationLayoutName;
+        this.validationLayoutNames = validationLayoutName;
     }
 
     public void addOkClickListener(OnOkClickListener listener) {
@@ -118,13 +105,20 @@ public class CreateClassAndLayoutDialog extends JDialog {
     }
 
     private void onOK() {
-        selectedPackage = textFieldPackagePath.getText();
+        String selectedPackage = textFieldPackagePath.getText();
         String className = textFieldClassName.getText();
         String layoutName = textFieldLayoutName.getText();
         if (validateFilePath(selectedPackage, className, layoutName)) {
-            boolean includeLayout = checkBoxIncludeLayout.isSelected();
             if (onOkClickListener != null) {
-                onOkClickListener.onButtonOkClick(selectedPackage, className, layoutName, includeLayout);
+                GenerateFileResult result = new GenerateFileResult()
+                        .setPackageName(selectedPackage)
+                        .setClassName(className)
+                        .setLayoutName(layoutName)
+                        .setSelectedModule(request.getSelectedModule())
+                        .setJavaDirectoryPath(request.getJavaDirectoryPath())
+                        .setLayoutDirectoryPath(request.getLayoutDirectoryPath())
+                        .setIncludeLayout(checkBoxIncludeLayout.isSelected());
+                onOkClickListener.onButtonOkClick(result);
             }
             dispose();
         }
@@ -132,18 +126,19 @@ public class CreateClassAndLayoutDialog extends JDialog {
 
     private boolean validateFilePath(String selectedPackage, String className, String layoutName) {
         selectedPackage = selectedPackage.replaceAll("\\.", "/");
-        Module module = ModuleUtilCore.findModuleForFile(currentFile, currentProject);
         for (String validationClassName : validationClassNames) {
-            String classPath = ModuleRootManager.getInstance(module).getContentRoots()[0].getCanonicalPath() + "/src/main/java/" + selectedPackage.replaceAll("\\.", "/") + "/" + String.format(validationClassName, className);
+            String classPath = request.getJavaDirectoryPath() + "/" + selectedPackage.replaceAll("\\.", "/") + "/" + String.format(validationClassName, className);
             if (isFileDuplicated(classPath)) {
                 showClassFileAlreadyExistMessage(classPath);
                 return false;
             }
         }
-        String layoutPath = ModuleRootManager.getInstance(module).getContentRoots()[0].getCanonicalPath() + "/src/main/res/layout/" + String.format(validationLayoutName, layoutName);
-        if (isFileDuplicated(layoutPath)) {
-            showLayoutFileAlreadyExistMessage(layoutPath);
-            return false;
+        for (String validationLayoutName : validationLayoutNames) {
+            String layoutPath = request.getLayoutDirectoryPath() + "/" + String.format(validationLayoutName, layoutName);
+            if (isFileDuplicated(layoutPath)) {
+                showLayoutFileAlreadyExistMessage(layoutPath);
+                return false;
+            }
         }
         return true;
     }
@@ -153,13 +148,6 @@ public class CreateClassAndLayoutDialog extends JDialog {
             onCancelClickListener.onButtonCancelClick();
         }
         dispose();
-    }
-
-    private void onSelectPackageClick() {
-        PackageChooserDialog chooserDialog = new PackageChooserDialog("Select package", currentProject);
-        chooserDialog.selectPackage(selectedPackage);
-        chooserDialog.show();
-        textFieldPackagePath.setText(chooserDialog.getSelectedPackage().getQualifiedName());
     }
 
     private void updateLayoutName() {
@@ -222,7 +210,7 @@ public class CreateClassAndLayoutDialog extends JDialog {
     }
 
     public interface OnOkClickListener {
-        void onButtonOkClick(String selectedPackage, String className, String layoutName, boolean includeLayout);
+        void onButtonOkClick(GenerateFileResult result);
     }
 
     public interface OnCancelClickListener {

@@ -8,7 +8,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -55,6 +54,7 @@ public class NextDroidTemplateUtil {
                 layoutName.matches("^[a-z0-9_]+$");
     }
 
+    @Deprecated
     public static String getDirectoryPath(VirtualFile file) {
         String path = file.getCanonicalPath();
         if (path != null && !file.isDirectory()) {
@@ -64,13 +64,28 @@ public class NextDroidTemplateUtil {
         }
     }
 
+    public static VirtualFile getDirectory(VirtualFile file) {
+        if (file != null && !file.isDirectory()) {
+            return file.getParent();
+        } else {
+            return file;
+        }
+    }
+
     public static String getPackagePath(String selectedDirectory, String projectDirectory) {
-        if (selectedDirectory.contains("/java/")) {
-            return selectedDirectory.replace(projectDirectory, "")
-                    .replaceAll(".+/java/", "")
+        if (selectedDirectory.contains("/java")) {
+            return selectedDirectory.replace(projectDirectory + "/", "")
                     .replaceAll("/", ".");
         } else {
             return "";
+        }
+    }
+
+    public static String getJavaDirectoryPath(String selectedDirectory) {
+        if (selectedDirectory.contains("/java/")) {
+            return selectedDirectory.replaceAll("/java/.+", "/java");
+        } else {
+            return selectedDirectory;
         }
     }
 
@@ -87,28 +102,19 @@ public class NextDroidTemplateUtil {
         return buildConfigList;
     }
 
-    public static Document getAndroidManifest(VirtualFile file) {
-        VirtualFile parent = file.getParent();
-        if (parent != null) {
-            int i = 100;
-            while (i > 0 && parent != null && (!parent.getName().equals("main") && (!parent.getName().equals("java")) && (!parent.getName().equals("src")))) {
-                parent = parent.getParent();
-                i--;
-            }
+    public static Document getAndroidManifest(Module module) {
+        VirtualFile moduleFile = NextDroidTemplateUtil.getModuleVirtualFile(module);
+        VirtualFile androidManifestFile = moduleFile.findChild("src").findChild("main").findChild("AndroidManifest.xml");
+        Document document = FileDocumentManager.getInstance().getCachedDocument(androidManifestFile);
+        if (document != null && document.isWritable()) {
+            return document;
+        } else {
+            return null;
         }
-        VirtualFile virtualFile[] = parent.getParent().getChildren();
-        for (int i = 0; i < virtualFile.length; i++) {
-            VirtualFile childFile = virtualFile[i];
-            Document document = FileDocumentManager.getInstance().getCachedDocument(childFile);
-            if (document != null && document.isWritable() && childFile.getPresentableName().toLowerCase().equals("androidmanifest.xml")) {
-                return document;
-            }
-        }
-        return null;
     }
 
-    public static String getAppPackageNameFromAndroidManifest(VirtualFile file) {
-        Document document = NextDroidTemplateUtil.getAndroidManifest(file);
+    public static String getAppPackageNameFromAndroidManifest(Module module) {
+        Document document = NextDroidTemplateUtil.getAndroidManifest(module);
         if (document != null) {
             String androidManifest = document.getCharsSequence().toString();
             String regex = "package=\"(.+)\">";
@@ -124,33 +130,32 @@ public class NextDroidTemplateUtil {
         return "";
     }
 
-    public static String getSourceDirectoryPath(Project project, String targetPath) {
-        String baseDirectory = project.getBaseDir().getCanonicalPath();
-        return targetPath.replaceAll(baseDirectory, "");
+    public static VirtualFile getModuleVirtualFile(Module module) {
+        return ModuleRootManager.getInstance(module).getContentRoots()[0];
     }
 
-    public static void createDirectoryIfNotExist(Project project, String path, DirectoryCreateListener listener) {
+    public static void createDirectoryIfNotExist(Module module, String directoryPath, DirectoryCreateListener listener) {
         Application application = ApplicationManager.getApplication();
         application.runWriteAction(() -> {
-            VirtualFile directory = project.getBaseDir();
-            String[] folders = path.split("/");
+            VirtualFile directory = NextDroidTemplateUtil.getModuleVirtualFile(module);
+            String subDirectoryPath = directoryPath.replace(directory.getCanonicalPath(), "");
+            String[] folders = subDirectoryPath.split("/");
             for (String childFolder : folders) {
                 VirtualFile childDirectory = directory.findChild(childFolder);
                 if (childDirectory != null && childDirectory.isDirectory()) {
                     directory = childDirectory;
                 } else if (!childFolder.isEmpty()) {
                     try {
-                        directory = directory.createChildDirectory(project, childFolder);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        directory = directory.createChildDirectory(module.getProject(), childFolder);
+                    } catch (IOException ignored) {
                     }
                 }
             }
-            listener.onComplete(directory != null, directory);
+            listener.onComplete(directory);
         });
     }
 
     public interface DirectoryCreateListener {
-        void onComplete(boolean isSuccess, VirtualFile file);
+        void onComplete(VirtualFile file);
     }
 }
