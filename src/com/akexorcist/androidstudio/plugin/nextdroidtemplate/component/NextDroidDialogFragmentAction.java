@@ -12,7 +12,7 @@ import com.intellij.openapi.module.Module;
 import java.util.Properties;
 
 public class NextDroidDialogFragmentAction extends BaseNextDroidClassAction {
-    private static final String TEMPLATE_PATH = "/templates/dialog_fragment/";
+    private static final String TEMPLATE_PATH = "/templates/dialog/dialog_fragment/";
     private static final String TEMPLATE_NAME_DIALOG_FRAGMENT = "KotlinCustomMvvmDialogFragment";
     private static final String TEMPLATE_NAME_VIEW_MODEL = "KotlinCustomDialogViewModel";
     private static final String TEMPLATE_NAME_LAYOUT = "layout_dialog_fragment_custom";
